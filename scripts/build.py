@@ -77,3 +77,107 @@ for i, (k, v) in enumerate(top):
 L.append('</svg>')
 open("assets/languages.svg", "w", encoding="utf-8").write("\n".join(L))
 print(top)
+
+# ================= extra sections =================
+import datetime, urllib.parse
+
+def gql(q):
+    req = urllib.request.Request("https://api.github.com/graphql", data=json.dumps({"query": q}).encode(),
+        headers={"Authorization": f"Bearer {TOKEN}", "Content-Type": "application/json"})
+    return json.load(urllib.request.urlopen(req))["data"]
+
+cc = gql('{user(login:"%s"){contributionsCollection{totalCommitContributions contributionCalendar{totalContributions weeks{contributionDays{contributionCount date weekday}}}}}}' % USER)["user"]["contributionsCollection"]
+cal = cc["contributionCalendar"]
+days = [d for w in cal["weeks"] for d in w["contributionDays"]]
+# current streak (today may still be 0)
+streak = 0
+for d in reversed(days):
+    if d["contributionCount"] > 0: streak += 1
+    elif d is days[-1]: continue
+    else: break
+pub = [r for r in api(f"https://api.github.com/users/{USER}/repos?per_page=100&type=owner") if not r["fork"]]
+
+BASE = f'<rect width="{{w}}" height="{{h}}" rx="14" fill="{BG}"/><rect x=".5" y=".5" width="{{iw}}" height="{{ih}}" rx="14" fill="none" stroke="{LINE}"/>'
+STY = '''<style>.a{opacity:0;animation:in .8s cubic-bezier(.2,.7,.2,1) forwards}@keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}</style>'''
+def wrap(w, h, body):
+    return (f'<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{h}" viewBox="0 0 {w} {h}">{STY}'
+            + BASE.format(w=w, h=h, iw=w-1, ih=h-1) + body + '</svg>')
+def label(x, y, t, anchor="start", fill=ACC):
+    return f'<text x="{x}" y="{y}" text-anchor="{anchor}" font-family="{MONO}" font-size="12" letter-spacing="3" fill="{fill}">{t}</text>'
+
+# ---- stats row ----
+items = [(f'{cal["totalContributions"]}', "CONTRIBUTIONS · 1Y"), (f'{cc["totalCommitContributions"]}', "COMMITS · 1Y"),
+         (f'{len(pub)}', "PUBLIC REPOS"), (f'{streak}', "DAY STREAK")]
+cw = (900 - 128) / 4
+b = ""
+for i, (n, l) in enumerate(items):
+    x = 64 + i * cw
+    if i: b += f'<line x1="{x-24:.0f}" y1="30" x2="{x-24:.0f}" y2="90" stroke="{LINE}"/>'
+    b += (f'<g class="a" style="animation-delay:{i*.1:.1f}s"><text x="{x:.0f}" y="66" font-family="{SANS}" font-size="38" font-weight="200" fill="{TXT}">{n}</text>'
+          f'<text x="{x:.0f}" y="88" font-family="{MONO}" font-size="10" letter-spacing="2" fill="{MUTED}">{l}</text></g>')
+open("assets/stats.svg", "w", encoding="utf-8").write(wrap(900, 120, b))
+
+# ---- heatmap ----
+HW, HH, cell, gap = 900, 230, 11, 3
+lv = ["#1E1915", "#4A3A2B", "#7A5F43", "#A98B63", "#D9BC8E"]
+mx = max(d["contributionCount"] for d in days) or 1
+def level(c):
+    if c == 0: return 0
+    return 1 + min(3, int((c - 1) / max(mx / 4, 1)))
+b = label(64, 58, "ACTIVITY") + label(HW - 64, 58, f'{cal["totalContributions"]} contributions in the last year', "end", MUTED).replace('letter-spacing="3"', 'letter-spacing="0"')
+x0, y0 = 64, 90
+prev_m = None
+for wi, w in enumerate(cal["weeks"]):
+    m = datetime.date.fromisoformat(w["contributionDays"][0]["date"]).strftime("%b")
+    if m != prev_m and wi < 50:
+        b += f'<text x="{x0+wi*(cell+gap)}" y="82" font-family="{MONO}" font-size="10" fill="{MUTED}">{m.upper()}</text>'
+    prev_m = m
+    for d in w["contributionDays"]:
+        y = y0 + d["weekday"] * (cell + gap)
+        b += f'<rect class="a" style="animation-delay:{wi*.018:.2f}s" x="{x0+wi*(cell+gap)}" y="{y}" width="{cell}" height="{cell}" rx="2.5" fill="{lv[level(d["contributionCount"])]}"/>'
+ly = y0 + 7 * (cell + gap) + 14
+b += f'<text x="{HW-64-5*16-60}" y="{ly+9}" font-family="{MONO}" font-size="10" fill="{MUTED}">LESS</text>'
+for i, c in enumerate(lv):
+    b += f'<rect x="{HW-64-5*16-20+i*16}" y="{ly}" width="{cell}" height="{cell}" rx="2.5" fill="{c}"/>'
+b += f'<text x="{HW-64+0}" y="{ly+9}" text-anchor="end" font-family="{MONO}" font-size="10" fill="{MUTED}">MORE</text>'
+open("assets/activity.svg", "w", encoding="utf-8").write(wrap(HW, HH, b))
+
+# ---- projects ----
+FEATURED = ["esp32-hardware-experiments", "cpp-exam-archive", "datastructure-notes", "ocean-guardian"]
+byname = {r["name"]: r for r in pub}
+def lines(t, maxu=40):
+    out, cur, u = [], "", 0
+    for ch in t:
+        w = 2 if ord(ch) > 0x2E80 else 1
+        if u + w > maxu:
+            out.append(cur); cur, u = "", 0
+            if len(out) == 2: break
+        cur += ch; u += w
+    if cur and len(out) < 2: out.append(cur)
+    elif len(out) == 2 and cur: out[1] = out[1][:-1] + "…"
+    return out
+PW, PH = 900, 340
+b = label(64, 58, "SELECTED WORK")
+cw2, ch2 = 378, 120
+for i, n in enumerate(FEATURED):
+    r = byname.get(n)
+    if not r: continue
+    x, y = 64 + (i % 2) * (cw2 + 16), 84 + (i // 2) * (ch2 + 16)
+    lang = r["language"] or "—"
+    upd = datetime.date.fromisoformat(r["pushed_at"][:10]).strftime("%b %Y").upper()
+    desc = r["description"] or f"{lang} project"
+    d = "".join(f'<text x="{x+22}" y="{y+62+j*20}" font-family="{SANS}" font-size="13" fill="{MUTED}">{html.escape(t)}</text>' for j, t in enumerate(lines(desc)))
+    b += (f'<g class="a" style="animation-delay:{i*.12:.2f}s"><rect x="{x}" y="{y}" width="{cw2}" height="{ch2}" rx="10" fill="#1A1613" stroke="{LINE}"/>'
+          f'<text x="{x+22}" y="{y+34}" font-family="{MONO}" font-size="14" fill="{ACC}">{html.escape(n)}</text>{d}'
+          f'<circle cx="{x+26}" cy="{y+ch2-20}" r="4" fill="{shades[i]}"/>'
+          f'<text x="{x+38}" y="{y+ch2-16}" font-family="{SANS}" font-size="12" fill="{TXT}">{html.escape(lang)}</text>'
+          f'<text x="{x+cw2-22}" y="{y+ch2-16}" text-anchor="end" font-family="{MONO}" font-size="10" letter-spacing="1" fill="{MUTED}">{upd}</text></g>')
+open("assets/projects.svg", "w", encoding="utf-8").write(wrap(PW, PH, b))
+
+# ---- footer ----
+today = datetime.date.today().strftime("%Y.%m.%d")
+open("assets/footer.svg", "w", encoding="utf-8").write(
+    f'<svg xmlns="http://www.w3.org/2000/svg" width="900" height="56" viewBox="0 0 900 56"><line x1="64" y1="18" x2="836" y2="18" stroke="{LINE}"/>'
+    f'<text x="64" y="42" font-family="{MONO}" font-size="11" letter-spacing="2" fill="{MUTED}">{USER.upper()}</text>'
+    f'<text x="836" y="42" text-anchor="end" font-family="{MONO}" font-size="11" letter-spacing="1" fill="{MUTED}">UPDATED {today}</text></svg>')
+print("extra ok", streak)
