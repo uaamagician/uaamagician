@@ -10,7 +10,9 @@ def api(u):
     if TOKEN: h["Authorization"] = f"Bearer {TOKEN}"
     return json.load(urllib.request.urlopen(urllib.request.Request(u, headers=h)))
 
-repos = [r for r in api(f"https://api.github.com/users/{USER}/repos?per_page=100&type=owner") if not r["fork"]]
+# 含私有倉庫（需要有 repo 權限的 token）；只統計語言比例，不會顯示倉庫名稱
+url = "https://api.github.com/user/repos?per_page=100&affiliation=owner" if TOKEN else f"https://api.github.com/users/{USER}/repos?per_page=100&type=owner"
+repos = [r for r in api(url) if not r["fork"] and r["name"] != USER]
 tot = {}
 for r in repos:
     for k, v in api(r["languages_url"]).items(): tot[k] = tot.get(k, 0) + v
