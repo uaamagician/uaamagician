@@ -22,17 +22,16 @@
 ### ☕ Languages & Tools
 
 <!-- 想增減語言：改 badge/ 後面的名稱與 logo= 即可（logo 名稱見 simpleicons.org） -->
-<img src="https://img.shields.io/badge/Python-2B1D14?style=for-the-badge&logo=python&logoColor=F5EFE6" />
-<img src="https://img.shields.io/badge/JavaScript-5C4033?style=for-the-badge&logo=javascript&logoColor=F5EFE6" />
-<img src="https://img.shields.io/badge/TypeScript-2B1D14?style=for-the-badge&logo=typescript&logoColor=F5EFE6" />
-<img src="https://img.shields.io/badge/HTML5-5C4033?style=for-the-badge&logo=html5&logoColor=F5EFE6" />
-<img src="https://img.shields.io/badge/CSS3-2B1D14?style=for-the-badge&logo=css3&logoColor=F5EFE6" />
-<br/>
-<img src="https://img.shields.io/badge/Java-5C4033?style=for-the-badge&logo=openjdk&logoColor=F5EFE6" />
 <img src="https://img.shields.io/badge/C++-2B1D14?style=for-the-badge&logo=cplusplus&logoColor=F5EFE6" />
-<img src="https://img.shields.io/badge/Swift-5C4033?style=for-the-badge&logo=swift&logoColor=F5EFE6" />
+<img src="https://img.shields.io/badge/JavaScript-5C4033?style=for-the-badge&logo=javascript&logoColor=F5EFE6" />
+<img src="https://img.shields.io/badge/HTML5-2B1D14?style=for-the-badge&logo=html5&logoColor=F5EFE6" />
+<img src="https://img.shields.io/badge/CSS3-5C4033?style=for-the-badge&logo=css3&logoColor=F5EFE6" />
+<img src="https://img.shields.io/badge/Dart-2B1D14?style=for-the-badge&logo=dart&logoColor=F5EFE6" />
+<br/>
+<img src="https://img.shields.io/badge/Verilog-5C4033?style=for-the-badge&logo=gnometerminal&logoColor=F5EFE6" />
 <img src="https://img.shields.io/badge/Git-2B1D14?style=for-the-badge&logo=git&logoColor=F5EFE6" />
 <img src="https://img.shields.io/badge/VS_Code-5C4033?style=for-the-badge&logo=visualstudiocode&logoColor=F5EFE6" />
+<img src="https://img.shields.io/badge/GitHub-2B1D14?style=for-the-badge&logo=github&logoColor=F5EFE6" />
 
 </div>
 
@@ -42,8 +41,8 @@
 
 ### 🪵 Most Used Languages
 
-<img src="https://github-readme-stats.vercel.app/api/top-langs/?username=uaamagician&layout=donut&langs_count=8&hide_border=false&border_color=D7C4A8&bg_color=F5EFE6&title_color=2B1D14&text_color=5C4033" width="48%" />
-<img src="https://github-readme-stats.vercel.app/api?username=uaamagician&show_icons=true&count_private=true&hide_border=false&border_color=D7C4A8&bg_color=2B1D14&title_color=A68A64&text_color=F5EFE6&icon_color=A68A64&ring_color=A68A64" width="48%" />
+<img src="https://github-readme-stats.hackclub.dev/api/top-langs/?username=uaamagician&layout=donut&langs_count=8&hide_border=false&border_color=D7C4A8&bg_color=F5EFE6&title_color=2B1D14&text_color=5C4033" width="48%" />
+<img src="https://github-readme-stats.hackclub.dev/api?username=uaamagician&show_icons=true&count_private=true&hide_border=false&border_color=D7C4A8&bg_color=2B1D14&title_color=A68A64&text_color=F5EFE6&icon_color=A68A64&ring_color=A68A64" width="48%" />
 
 </div>
 
