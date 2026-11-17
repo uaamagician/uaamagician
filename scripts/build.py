@@ -136,10 +136,11 @@ for wi, w in enumerate(cal["weeks"]):
         y = y0 + d["weekday"] * (cell + gap)
         b += f'<rect class="a" style="animation-delay:{wi*.018:.2f}s" x="{x0+wi*(cell+gap)}" y="{y}" width="{cell}" height="{cell}" rx="2.5" fill="{lv[level(d["contributionCount"])]}"/>'
 ly = y0 + 7 * (cell + gap) + 14
-b += f'<text x="{HW-64-5*16-60}" y="{ly+9}" font-family="{MONO}" font-size="10" fill="{MUTED}">LESS</text>'
+mx0 = HW - 64 - 34 - 10 - 5 * 16 + 5
+b += f'<text x="{mx0-8}" y="{ly+9}" text-anchor="end" font-family="{MONO}" font-size="10" fill="{MUTED}">LESS</text>'
 for i, c in enumerate(lv):
-    b += f'<rect x="{HW-64-5*16-20+i*16}" y="{ly}" width="{cell}" height="{cell}" rx="2.5" fill="{c}"/>'
-b += f'<text x="{HW-64+0}" y="{ly+9}" text-anchor="end" font-family="{MONO}" font-size="10" fill="{MUTED}">MORE</text>'
+    b += f'<rect x="{mx0+i*16}" y="{ly}" width="{cell}" height="{cell}" rx="2.5" fill="{c}"/>'
+b += f'<text x="{HW-64}" y="{ly+9}" text-anchor="end" font-family="{MONO}" font-size="10" fill="{MUTED}">MORE</text>'
 open("assets/activity.svg", "w", encoding="utf-8").write(wrap(HW, HH, b))
 
 # ---- projects ----
@@ -163,7 +164,7 @@ for i, n in enumerate(FEATURED):
     r = byname.get(n)
     if not r: continue
     x, y = 64 + (i % 2) * (cw2 + 16), 84 + (i // 2) * (ch2 + 16)
-    lang = r["language"] or "—"
+    lang = r["language"] or "Notes"
     upd = datetime.date.fromisoformat(r["pushed_at"][:10]).strftime("%b %Y").upper()
     desc = r["description"] or f"{lang} project"
     d = "".join(f'<text x="{x+22}" y="{y+62+j*20}" font-family="{SANS}" font-size="13" fill="{MUTED}">{html.escape(t)}</text>' for j, t in enumerate(lines(desc)))
